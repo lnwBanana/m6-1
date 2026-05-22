@@ -21,7 +21,8 @@ const SUBJECTS = [
   { id: "pe",     name: "พลศึกษา (ลีลาศ)",             teacher: "ครูนที",        color: "#86efac", bg: "#032010", type: "ทักษะ",    emoji: "🏃" },
   { id: "hist",   name: "ประวัติศาสตร์ร่วมสมัย",       teacher: "ครูโสรัตน์",   color: "#fcd34d", bg: "#1a1000", type: "สังคม",    emoji: "🏛️" },
   { id: "guide",  name: "แนะแนว",                      teacher: "ครูนที",        color: "#94a3b8", bg: "#0f1520", type: "กิจกรรม", emoji: "🧭" },
-  { id: "anti",   name: "ต้านทุจริต / นศท. / ชุมนุม", teacher: "ครูวิลาวัณย์", color: "#cbd5e1", bg: "#111827", type: "กิจกรรม", emoji: "🛡️" },
+  { id: "anti",   name: "ต้านทุจริต", teacher: "ครูวิลาวัณย์", color: "#cbd5e1", bg: "#111827", type: "กิจกรรม", emoji: "🛡️" },
+  { id: "nst",   name: "นศท. / ชุมนุม",  teacher: "ครูวิลาวัณย์", color: "#94a3b8", bg: "#0f1520", type: "กิจกรรม", emoji: "🎖️" },
   { id: "home",   name: "โฮมรูม",                      teacher: "ครูประจำชั้น", color: "#e2e8f0", bg: "#1e293b", type: "กิจกรรม", emoji: "🏠" },
 ];
 
@@ -34,33 +35,44 @@ const SLOTS_RAW = [
   { day: 0, s: "10:50", e: "11:40", sid: "social" },
   { day: 0, s: "11:40", e: "12:30", sid: "drama" },
   { day: 0, s: "13:30", e: "14:20", sid: "chem" },
-  { day: 0, s: "14:20", e: "15:10", sid: "math1" },
+  { day: 0, s: "14:20", e: "16:00", sid: "math1" },
+  
+  // วันอังคาร (day: 1)
   { day: 1, s: "08:50", e: "09:00", sid: "home" },
   { day: 1, s: "09:00", e: "09:50", sid: "social" },
   { day: 1, s: "09:50", e: "10:40", sid: "chem" },
   { day: 1, s: "10:50", e: "11:40", sid: "chem" },
   { day: 1, s: "11:40", e: "12:30", sid: "thai" },
-  { day: 1, s: "13:30", e: "14:20", sid: "math2" },
-  { day: 1, s: "14:20", e: "15:10", sid: "comp" },
+  { day: 1, s: "13:30", e: "15:10", sid: "math2" }, 
+  { day: 1, s: "15:10", e: "16:00", sid: "comp" },  
+  
+  // วันพุธ (day: 2)
   { day: 2, s: "08:50", e: "09:00", sid: "home" },
   { day: 2, s: "09:00", e: "09:50", sid: "astro" },
   { day: 2, s: "09:50", e: "10:40", sid: "tech" },
   { day: 2, s: "10:50", e: "12:30", sid: "bio" },
   { day: 2, s: "13:30", e: "14:20", sid: "math2" },
-  { day: 2, s: "14:20", e: "15:10", sid: "eng1" },
+  { day: 2, s: "14:20", e: "16:00", sid: "eng1" },
+  
+  // วันพฤหัสบดี (day: 3)
   { day: 3, s: "08:50", e: "09:00", sid: "home" },
   { day: 3, s: "09:00", e: "10:40", sid: "phy" },
   { day: 3, s: "10:50", e: "11:40", sid: "astro" },
   { day: 3, s: "11:40", e: "12:30", sid: "thai" },
   { day: 3, s: "13:30", e: "14:20", sid: "guide" },
-  { day: 3, s: "14:20", e: "15:10", sid: "anti" },
+  { day: 3, s: "14:20", e: "15:10", sid: "anti" },  // 🛡️ กล่องต้านทุจริต
+  { day: 3, s: "14:20", e: "16:00", sid: "nst" },   // 🎖️ เพิ่มกล่อง นศท. / ชุมนุม แยกกันเรียนในเวลาเดียวกันตรงนี้ครับ!
+  
+  // วันศุกร์ (day: 4)
   { day: 4, s: "08:50", e: "09:00", sid: "home" },
   { day: 4, s: "09:00", e: "10:40", sid: "eng2" },
   { day: 4, s: "10:50", e: "11:40", sid: "hist" },
   { day: 4, s: "11:40", e: "12:30", sid: "pe" },
   { day: 4, s: "13:30", e: "14:20", sid: "comp" },
-  { day: 4, s: "14:20", e: "15:10", sid: "phy" },
+  { day: 4, s: "14:20", e: "16:00", sid: "phy" },
 ];
+
+
 
 function toMins(t) { const [h, m] = t.split(":").map(Number); return h * 60 + m; }
 function pad2(n) { return String(n).padStart(2, "0"); }
@@ -480,12 +492,14 @@ function HoldableCard({ slot, isNow, sub, expanded, onToggleExpand, onGoHomework
 }
 
 function GridView({ slots, nowDay, nowMins, onGoHomework }) {
-  const TIME_RANGES = [
+ const TIME_RANGES = [
     { s: "08:50", e: "09:00" }, { s: "09:00", e: "09:50" }, { s: "09:50", e: "10:40" },
     { s: "10:40", e: "10:50", brk: true },
     { s: "10:50", e: "11:40" }, { s: "11:40", e: "12:30" },
     { s: "12:30", e: "13:30", brk: true },
     { s: "13:30", e: "14:20" }, { s: "14:20", e: "15:10" },
+    { s: "15:10", e: "16:00" }, // 🌟 เพิ่มแถวเวลาคาบสุดท้าย 15:10 - 16:00 น. ตรงนี้
+
   ];
   return (
     <div style={{ overflowX: "auto" }}>
